@@ -22,8 +22,7 @@ model User {
 }
 
 model Session {
-    id        String   @id
-    sid       String   @unique
-    data      String
+    sessionId String   @id @unique
+    userId    Int      @default(autoincrement())
     expiresAt DateTime
 }

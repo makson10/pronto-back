@@ -18,17 +18,22 @@ export interface LogInResponse {
   logined: boolean;
 }
 
-export interface QuickAccessUserData {
-  id: number;
-  firstName: string;
-  email: string;
+export interface LogOutResponse {
+  okay: boolean;
 }
 
-export type NewUserSession = {
+export type Session = {
   sessionId?: string;
-  user?: {
-    id: number;
-    firstName: string;
-    email: string;
-  };
-}
+  userId?: number;
+  expiresAt?: Date;
+};
+
+export type FullUser = {
+  id: number;
+  firstName: string;
+  lastName: string;
+  fullName: string;
+  createdAt: string;
+  email: string;
+  password: string;
+};

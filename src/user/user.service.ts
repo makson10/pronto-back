@@ -1,92 +1,72 @@
-import { Injectable } from '@nestjs/common';
-import {
-  LogInData,
-  NewUserSession,
-  QuickAccessUserData,
-  SignUpData,
-} from './interfaces/user.interfaces';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { LogInData, SignUpData } from './interfaces/user.interfaces';
+import { UserUtilsService } from './userUtils.service';
 import { prisma } from 'prisma/prisma';
-import * as bcrypt from 'bcrypt';
-import { Session } from 'express-session';
 
 @Injectable()
 export class UserService {
-  private readonly ID_LENGTH = 8;
+  constructor(private userUtilsService: UserUtilsService) {}
 
-  private getRandomNumber(min: number, max: number) {
-    return Math.floor(Math.random() * (max + 1 - min) + min);
+  public async createNewUserSession(sessionId: string, userId: number) {
+    const sessionExpireDate = new Date(+new Date() + 28 * 24 * 60 * 60 * 1000);
+    const session = {
+      sessionId: sessionId,
+      userId: userId,
+      expiresAt: sessionExpireDate,
+    };
+
+    await this.userUtilsService.deleteAllUserSession(userId);
+    await this.userUtilsService.storeNewSessionInDB(session);
   }
 
-  private generateUniqueId() {
-    let id = '';
+  public async signUp(user: SignUpData) {
+    const { firstName, lastName, email, password } = user;
 
-    id += this.getRandomNumber(1, 9);
-    for (let i = 0; i < this.ID_LENGTH - 1; i++) {
-      id += this.getRandomNumber(0, 9);
-    }
+    const id = this.userUtilsService.generateUniqueId();
+    const fullName = this.userUtilsService.combineName(firstName, lastName);
+    const hashedPassword =
+      await this.userUtilsService.hashingPassword(password);
 
-    return parseInt(id);
-  }
-
-  private async hashingPassword(plainPassword: string) {
-    const salt = await bcrypt.genSalt(10);
-    return await bcrypt.hash(plainPassword, salt);
-  }
-
-  private combineName(firstName: string, lastName: string) {
-    return firstName + ' ' + lastName;
-  }
-
-  public createNewUserSession(
-    sessionId: Session | any,
-    quickAccessUserData: QuickAccessUserData,
-  ) {
-    const session: NewUserSession = {};
-    session.user = quickAccessUserData;
-    session.sessionId = sessionId;
-    return session;
-  }
-
-  public async addNewUser(formData: SignUpData) {
-    const { firstName, lastName, email, password } = formData;
-
-    const id = this.generateUniqueId();
-    const fullName = this.combineName(firstName, lastName);
-    const hashedPassword = await this.hashingPassword(password);
-
-    const newUser = { id, ...formData, fullName, password: hashedPassword };
-    const quickAccessUserData = { id, firstName, email };
+    const newUser = { id, ...user, fullName, password: hashedPassword };
+    const sessionUserData = { id, firstName, email };
 
     try {
       await prisma.user.create({ data: newUser });
-      return { okay: true, quickAccessUserData };
+      return { okay: true, sessionUserData };
     } catch (error) {
-      console.error(error);
-      return { okay: false };
+      throw new InternalServerErrorException(
+        'While creating user happened error',
+      );
     }
   }
 
-  public async verifyUser(formData: LogInData) {
-    const { email: enteredEmail, password: enteredPassword } = formData;
-    const foundUsers = await this.searchUsersAccountByEmail(enteredEmail);
-    if (!foundUsers) return false;
+  public async logIn(user: LogInData) {
+    const foundUser = await this.userUtilsService.verifyUser(user);
 
-    const haveAccess = await this.verifyUserPassword(
-      enteredPassword,
-      foundUsers.password,
-    );
+    const sessionUserData = {
+      id: foundUser.id,
+      email: foundUser.email,
+      firstName: foundUser.firstName,
+    };
 
-    return haveAccess;
+    return {
+      isAuthorized: true,
+      sessionUserData,
+    };
   }
 
-  public async searchUsersAccountByEmail(email: string) {
-    return await prisma.user.findFirst({ where: { email: email } });
+  public async logOut(sessionId: string) {
+    const { userId } =
+      await this.userUtilsService.findSessionBySessionId(sessionId);
+    await this.userUtilsService.deleteAllUserSession(userId);
   }
 
-  public async verifyUserPassword(
-    enteredPassword: string,
-    stroredHashedPassword: string,
-  ) {
-    return await bcrypt.compare(enteredPassword, stroredHashedPassword);
+  public async getUserData(sessionId: string) {
+    const session =
+      await this.userUtilsService.findSessionBySessionId(sessionId);
+    const userId = session.userId;
+    const user = await this.userUtilsService.findUserByUserId(userId);
+
+    return user;
   }
 }
