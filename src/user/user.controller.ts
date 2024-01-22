@@ -11,6 +11,7 @@ import { LogInDto } from './dto/logIn.dto';
 import { Request, Response } from 'express';
 import { User } from './decorator/user.decorator';
 import { CookieGuard } from 'src/guard/cookie.guard';
+import { SessionGuard } from 'src/guard/session.guard';
 
 @Controller('user')
 export class UserController {
@@ -29,7 +30,7 @@ export class UserController {
       result.sessionUserData.id,
     );
 
-    res.cookie('session', request.sessionID);
+    res.cookie('sessionId', request.sessionID);
     return res.status(201).json({ okay: result.okay });
   }
 
@@ -46,7 +47,7 @@ export class UserController {
       result.sessionUserData.id,
     );
 
-    res.cookie('session', request.sessionID);
+    res.cookie('sessionId', request.sessionID);
     return res.status(200).json({ isAuthorized: result.isAuthorized });
   }
 
@@ -64,6 +65,7 @@ export class UserController {
 
   @Post('getuserdata')
   @UseGuards(CookieGuard)
+  @UseGuards(SessionGuard)
   async getUserData(
     @Req() request: Request,
     @Res({ passthrough: true }) res: Response,
