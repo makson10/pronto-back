@@ -61,12 +61,7 @@ export class UserService {
     await this.userUtilsService.deleteAllUserSession(userId);
   }
 
-  public async getUserData(sessionId: string) {
-    const session =
-      await this.userUtilsService.findSessionBySessionId(sessionId);
-    const userId = session.userId;
-    const user = await this.userUtilsService.findUserByUserId(userId);
-
-    return user;
+  public async getUserData(userId: number) {
+    return await this.userUtilsService.findUserByUserId(userId);
   }
 }

@@ -4,6 +4,7 @@ import {
   LogInResponse,
   LogOutResponse,
   FullUser,
+  Session,
 } from './interfaces/user.interfaces';
 import { Controller, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { SignUpDto } from './dto/signUp.dto';
@@ -12,6 +13,7 @@ import { Request, Response } from 'express';
 import { User } from './decorator/user.decorator';
 import { CookieGuard } from 'src/guard/cookie.guard';
 import { SessionGuard } from 'src/guard/session.guard';
+import { UserSession } from './decorator/userSession.decorator';
 
 @Controller('user')
 export class UserController {
@@ -67,12 +69,10 @@ export class UserController {
   @UseGuards(CookieGuard)
   @UseGuards(SessionGuard)
   async getUserData(
-    @Req() request: Request,
+    @UserSession() session: Session,
     @Res({ passthrough: true }) res: Response,
   ): Promise<Response<FullUser>> {
-    const sessionId = request.cookies.sessiodId;
-    const user = await this.userService.getUserData(sessionId);
-
+    const user = await this.userService.getUserData(session.userId);
     return res.status(200).json(user);
   }
 }
