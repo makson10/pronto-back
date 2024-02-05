@@ -37,3 +37,7 @@ export type FullUser = {
   email: string;
   password: string;
 };
+
+export interface GetUserIdBySessionResponse {
+    userId: number;
+}

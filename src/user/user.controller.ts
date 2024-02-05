@@ -5,8 +5,17 @@ import {
   LogOutResponse,
   FullUser,
   Session,
+  GetUserIdBySessionResponse,
 } from './interfaces/user.interfaces';
-import { Controller, Post, Req, Res, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  ParseIntPipe,
+  Post,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { SignUpDto } from './dto/signUp.dto';
 import { LogInDto } from './dto/logIn.dto';
 import { Request, Response } from 'express';
@@ -14,6 +23,7 @@ import { User } from './decorator/user.decorator';
 import { CookieGuard } from 'src/guard/cookie.guard';
 import { SessionGuard } from 'src/guard/session.guard';
 import { UserSession } from './decorator/userSession.decorator';
+import { UserIdGuard } from 'src/guard/userId.guard';
 
 @Controller('user')
 export class UserController {
@@ -56,23 +66,41 @@ export class UserController {
   @Post('logout')
   @UseGuards(CookieGuard)
   async logOut(
-    @Req() request: Request,
+    @UserSession() session: Session,
     @Res({ passthrough: true }) res: Response,
   ): Promise<Response<LogOutResponse>> {
-    const sessionId = request.cookies.sessionId;
-    await this.userService.logOut(sessionId);
-
+    await this.userService.logOut(session.userId);
     return res.status(200).json({ okay: true });
   }
 
-  @Post('getuserdata')
+  @Post('getuseridbysession')
   @UseGuards(CookieGuard)
   @UseGuards(SessionGuard)
-  async getUserData(
+  async getUserIdFromSession(
+    @UserSession() session: Session,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<Response<GetUserIdBySessionResponse>> {
+    return res.status(200).json({ userId: session.userId });
+  }
+
+  @Post('getuserdatabysession')
+  @UseGuards(CookieGuard)
+  @UseGuards(SessionGuard)
+  async getUserDataBySession(
     @UserSession() session: Session,
     @Res({ passthrough: true }) res: Response,
   ): Promise<Response<FullUser>> {
     const user = await this.userService.getUserData(session.userId);
+    return res.status(200).json(user);
+  }
+
+  @Post('getuserdatabyuserid')
+  @UseGuards(UserIdGuard)
+  async getUserDataByUserId(
+    @Body('userId', ParseIntPipe) userId: number,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<Response<FullUser>> {
+    const user = await this.userService.getUserData(userId);
     return res.status(200).json(user);
   }
 }

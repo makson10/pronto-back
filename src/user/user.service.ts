@@ -31,7 +31,14 @@ export class UserService {
     const sessionUserData = { id, firstName, email };
 
     try {
-      await prisma.user.create({ data: newUser });
+      await prisma.user.create({
+        data: {
+          ...newUser,
+          UserProfile: {
+            create: {},
+          },
+        },
+      });
       return { okay: true, sessionUserData };
     } catch (error) {
       throw new InternalServerErrorException(
@@ -55,9 +62,7 @@ export class UserService {
     };
   }
 
-  public async logOut(sessionId: string) {
-    const { userId } =
-      await this.userUtilsService.findSessionBySessionId(sessionId);
+  public async logOut(userId: number) {
     await this.userUtilsService.deleteAllUserSession(userId);
   }
 

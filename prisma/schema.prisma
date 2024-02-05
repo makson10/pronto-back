@@ -6,23 +6,40 @@ generator client {
 }
 
 datasource db {
-    provider  = "postgresql"
-    url       = env("DATABASE_URL")
-    directUrl = env("DIRECT_URL")
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
 }
 
 model User {
-    id        Int      @id @unique
-    firstName String
-    lastName  String
-    fullName  String
-    createdAt DateTime @default(now())
-    email     String
-    password  String
+    id          Int          @unique
+    firstName   String
+    lastName    String
+    fullName    String
+    createdAt   DateTime     @default(now())
+    email       String
+    password    String
+    Session     Session?
+    UserProfile UserProfile?
+
+    @@id([id, fullName])
 }
 
 model Session {
+    user      User?    @relation(fields: [userId], references: [id])
     sessionId String   @id @unique
-    userId    Int      @default(autoincrement())
+    userId    Int      @unique @default(autoincrement())
     expiresAt DateTime
+}
+
+model UserProfile {
+    User        User     @relation(fields: [profileId, name], references: [id, fullName])
+    profileId   Int      @id
+    name        String
+    description String?
+    createdAt   DateTime @default(now())
+    city        String?
+    verifedUser Boolean  @default(false)
+    icon        String?
+
+    @@unique([profileId, name])
 }
