@@ -28,6 +28,8 @@ export class UserUtilsService {
   }
 
   public combineName(firstName: string, lastName: string) {
+    firstName = firstName[0].toUpperCase() + firstName.slice(1);
+    lastName = firstName[0].toUpperCase() + firstName.slice(1);
     return firstName + ' ' + lastName;
   }
 

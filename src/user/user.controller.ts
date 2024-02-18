@@ -1,12 +1,5 @@
 import { UserService } from './user.service';
-import {
-  SignUpResponse,
-  LogInResponse,
-  LogOutResponse,
-  FullUser,
-  Session,
-  GetUserIdBySessionResponse,
-} from './interfaces/user.interfaces';
+import { Session } from './interfaces/user.interfaces';
 import {
   Body,
   Controller,
@@ -34,7 +27,7 @@ export class UserController {
     @Req() request: Request,
     @User() user: SignUpDto,
     @Res({ passthrough: true }) res: Response,
-  ): Promise<Response<SignUpResponse>> {
+  ) {
     const result = await this.userService.signUp(user);
 
     await this.userService.createNewUserSession(
@@ -43,7 +36,7 @@ export class UserController {
     );
 
     res.cookie('sessionId', request.sessionID);
-    return res.status(201).json({ okay: result.okay });
+    res.status(201).json({ okay: result.okay });
   }
 
   @Post('login')
@@ -51,7 +44,7 @@ export class UserController {
     @Req() request: Request,
     @User() user: LogInDto,
     @Res({ passthrough: true }) res: Response,
-  ): Promise<Response<LogInResponse>> {
+  ) {
     const result = await this.userService.logIn(user);
 
     await this.userService.createNewUserSession(
@@ -60,7 +53,7 @@ export class UserController {
     );
 
     res.cookie('sessionId', request.sessionID);
-    return res.status(200).json({ isAuthorized: result.isAuthorized });
+    res.status(200).json({ isAuthorized: result.isAuthorized });
   }
 
   @Post('logout')
@@ -68,9 +61,9 @@ export class UserController {
   async logOut(
     @UserSession() session: Session,
     @Res({ passthrough: true }) res: Response,
-  ): Promise<Response<LogOutResponse>> {
+  ) {
     await this.userService.logOut(session.userId);
-    return res.status(200).json({ okay: true });
+    res.status(200).json({ okay: true });
   }
 
   @Post('getuseridbysession')
@@ -79,8 +72,8 @@ export class UserController {
   async getUserIdFromSession(
     @UserSession() session: Session,
     @Res({ passthrough: true }) res: Response,
-  ): Promise<Response<GetUserIdBySessionResponse>> {
-    return res.status(200).json({ userId: session.userId });
+  ) {
+    res.status(200).json({ userId: session.userId });
   }
 
   @Post('getuserdatabysession')
@@ -89,9 +82,9 @@ export class UserController {
   async getUserDataBySession(
     @UserSession() session: Session,
     @Res({ passthrough: true }) res: Response,
-  ): Promise<Response<FullUser>> {
+  ) {
     const user = await this.userService.getUserData(session.userId);
-    return res.status(200).json(user);
+    res.status(200).json(user);
   }
 
   @Post('getuserdatabyuserid')
@@ -99,8 +92,8 @@ export class UserController {
   async getUserDataByUserId(
     @Body('userId', ParseIntPipe) userId: number,
     @Res({ passthrough: true }) res: Response,
-  ): Promise<Response<FullUser>> {
+  ) {
     const user = await this.userService.getUserData(userId);
-    return res.status(200).json(user);
+    res.status(200).json(user);
   }
 }

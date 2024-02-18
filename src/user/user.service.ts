@@ -34,7 +34,7 @@ export class UserService {
       await prisma.user.create({
         data: {
           ...newUser,
-          UserProfile: {
+          Profile: {
             create: {},
           },
         },
