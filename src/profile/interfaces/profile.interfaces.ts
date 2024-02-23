@@ -8,8 +8,8 @@ export type Profile = {
   icon: string | null;
 };
 
-export interface ChangePasswordBody {
-  userId: number;
-  oldPassword: string;
-  newPassword: string;
+export interface NewProfileData {
+  dateOfBirth: string;
+  description: string;
+  city: string;
 }

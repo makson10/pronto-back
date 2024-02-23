@@ -9,7 +9,11 @@ import {
 import { Response } from 'express';
 import { UserIdGuard } from 'src/guard/userId.guard';
 import { ProfileService } from './profile.service';
-import { ChangePasswordBody } from './interfaces/profile.interfaces';
+import { FullUser } from 'src/user/interfaces/user.interfaces';
+import { User } from './decorator/user.decorator';
+import { ChangeIconDto } from './dto/changeIcon.dto';
+import { ChangePasswordDto } from './dto/changePassword.dto';
+import { EditDataDto } from './dto/editDataDto.dto';
 
 @Controller('profile')
 export class ProfileController {
@@ -38,20 +42,42 @@ export class ProfileController {
     res.status(200).json({ okay: true });
   }
 
-  @Post('test')
-  async resetVerificationData(@Res({ passthrough: true }) res: Response) {
-    await this.profileService.resetVerificationData();
+  @Post('changepassword')
+  @UseGuards(UserIdGuard)
+  async changePassword(
+    @User() user: FullUser,
+    @Body() body: ChangePasswordDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const { oldPassword, newPassword } = body;
+    await this.profileService.comparePasswordWithStored(
+      oldPassword,
+      user.password,
+    );
+    await this.profileService.changeUserPassword(user.id, newPassword);
+
     res.status(200).json({ okay: true });
   }
 
-  @Post('changepassword')
-  async changePassword(
-    @Body() body: ChangePasswordBody,
+  @Post('changeicon')
+  @UseGuards(UserIdGuard)
+  async changeIcon(
+    @Body() body: ChangeIconDto,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const { userId, oldPassword, newPassword } = body;
-    await this.profileService.comparePasswordWithStored(userId, oldPassword);
-    // await changeUserPassword(newPassword);
+    const { userId, newIconUrl } = body;
+    await this.profileService.changeUserIcon(userId, newIconUrl);
+    res.status(200).json({ okay: true });
+  }
+
+  @Post('editdata')
+  @UseGuards(UserIdGuard)
+  async editData(
+    @Body() body: EditDataDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const { userId, newProfileData } = body;
+    await this.profileService.editData(userId, newProfileData);
     res.status(200).json({ okay: true });
   }
 }
