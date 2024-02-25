@@ -41,9 +41,8 @@ export class UserService {
       });
       return { okay: true, sessionUserData };
     } catch (error) {
-      throw new InternalServerErrorException(
-        'While creating user happened error',
-      );
+      console.log(error);
+      throw new InternalServerErrorException('While sign up happened error');
     }
   }
 

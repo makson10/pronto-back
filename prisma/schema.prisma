@@ -16,7 +16,7 @@ model User {
     lastName            String
     fullName            String
     createdAt           DateTime             @default(now())
-    email               String
+    email               String               @unique
     password            String
     Session             Session?
     Profile             Profile?

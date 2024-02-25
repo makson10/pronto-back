@@ -17,16 +17,18 @@ import { CookieGuard } from 'src/guard/cookie.guard';
 import { SessionGuard } from 'src/guard/session.guard';
 import { UserSession } from './decorator/userSession.decorator';
 import { UserIdGuard } from 'src/guard/userId.guard';
+import { SignUpEmailValidation } from 'src/guard/signUpEmailValidation.guard';
 
 @Controller('user')
 export class UserController {
   constructor(private userService: UserService) {}
 
   @Post('signup')
+  @UseGuards(SignUpEmailValidation)
   async signUp(
     @Req() request: Request,
     @User() user: SignUpDto,
-    @Res({ passthrough: true }) res: Response,
+    @Res() res: Response,
   ) {
     const result = await this.userService.signUp(user);
 
@@ -43,7 +45,7 @@ export class UserController {
   async logIn(
     @Req() request: Request,
     @User() user: LogInDto,
-    @Res({ passthrough: true }) res: Response,
+    @Res() res: Response,
   ) {
     const result = await this.userService.logIn(user);
 
@@ -58,10 +60,7 @@ export class UserController {
 
   @Post('logout')
   @UseGuards(CookieGuard)
-  async logOut(
-    @UserSession() session: Session,
-    @Res({ passthrough: true }) res: Response,
-  ) {
+  async logOut(@UserSession() session: Session, @Res() res: Response) {
     await this.userService.logOut(session.userId);
     res.status(200).json({ okay: true });
   }
@@ -71,7 +70,7 @@ export class UserController {
   @UseGuards(SessionGuard)
   async getUserIdFromSession(
     @UserSession() session: Session,
-    @Res({ passthrough: true }) res: Response,
+    @Res() res: Response,
   ) {
     res.status(200).json({ userId: session.userId });
   }
@@ -81,7 +80,7 @@ export class UserController {
   @UseGuards(SessionGuard)
   async getUserDataBySession(
     @UserSession() session: Session,
-    @Res({ passthrough: true }) res: Response,
+    @Res() res: Response,
   ) {
     const user = await this.userService.getUserData(session.userId);
     res.status(200).json(user);
@@ -91,7 +90,7 @@ export class UserController {
   @UseGuards(UserIdGuard)
   async getUserDataByUserId(
     @Body('userId', ParseIntPipe) userId: number,
-    @Res({ passthrough: true }) res: Response,
+    @Res() res: Response,
   ) {
     const user = await this.userService.getUserData(userId);
     res.status(200).json(user);

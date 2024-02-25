@@ -23,7 +23,7 @@ export class ProfileController {
   @UseGuards(UserIdGuard)
   async getProfile(
     @Body('userId', ParseIntPipe) userId: number,
-    @Res({ passthrough: true }) res: Response,
+    @Res() res: Response,
   ) {
     const profile = await this.profileService.getProfile(userId);
     res.status(200).json(profile);
@@ -33,7 +33,7 @@ export class ProfileController {
   @UseGuards(UserIdGuard)
   async getUserVerificationRequest(
     @Body('userId', ParseIntPipe) userId: number,
-    @Res({ passthrough: true }) res: Response,
+    @Res() res: Response,
   ) {
     await this.profileService.addUserToVerificationRequestList(userId);
     await this.profileService.updateProfile(userId, {
@@ -47,7 +47,7 @@ export class ProfileController {
   async changePassword(
     @User() user: FullUser,
     @Body() body: ChangePasswordDto,
-    @Res({ passthrough: true }) res: Response,
+    @Res() res: Response,
   ) {
     const { oldPassword, newPassword } = body;
     await this.profileService.comparePasswordWithStored(
@@ -61,10 +61,7 @@ export class ProfileController {
 
   @Post('changeicon')
   @UseGuards(UserIdGuard)
-  async changeIcon(
-    @Body() body: ChangeIconDto,
-    @Res({ passthrough: true }) res: Response,
-  ) {
+  async changeIcon(@Body() body: ChangeIconDto, @Res() res: Response) {
     const { userId, newIconUrl } = body;
     await this.profileService.changeUserIcon(userId, newIconUrl);
     res.status(200).json({ okay: true });
@@ -72,10 +69,7 @@ export class ProfileController {
 
   @Post('editdata')
   @UseGuards(UserIdGuard)
-  async editData(
-    @Body() body: EditDataDto,
-    @Res({ passthrough: true }) res: Response,
-  ) {
+  async editData(@Body() body: EditDataDto, @Res() res: Response) {
     const { userId, newProfileData } = body;
     await this.profileService.editData(userId, newProfileData);
     res.status(200).json({ okay: true });
