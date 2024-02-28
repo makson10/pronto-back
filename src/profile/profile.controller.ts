@@ -67,6 +67,13 @@ export class ProfileController {
     res.status(200).json({ okay: true });
   }
 
+  @Post('deleteicon')
+  @UseGuards(UserIdGuard)
+  async deleteIcon(@Body('userId') userId: number, @Res() res: Response) {
+    await this.profileService.deleteIcon(userId);
+    res.status(200).json({ okay: true });
+  }
+
   @Post('editdata')
   @UseGuards(UserIdGuard)
   async editData(@Body() body: EditDataDto, @Res() res: Response) {

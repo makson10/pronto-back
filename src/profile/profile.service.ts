@@ -60,6 +60,13 @@ export class ProfileService {
     });
   }
 
+  public async deleteIcon(userId: number) {
+    return prisma.profile.update({
+      where: { profileId: userId },
+      data: { icon: null },
+    });
+  }
+
   public async editData(userId: number, newProfileData: NewProfileData) {
     const age = await this.calculateUserAge(newProfileData.dateOfBirth);
 
