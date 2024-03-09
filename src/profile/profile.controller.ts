@@ -14,6 +14,7 @@ import { User } from './decorator/user.decorator';
 import { ChangeIconDto } from './dto/changeIcon.dto';
 import { ChangePasswordDto } from './dto/changePassword.dto';
 import { EditDataDto } from './dto/editDataDto.dto';
+import { MakeNewPostDto } from './dto/MakeNewPostDto.dto';
 
 @Controller('profile')
 export class ProfileController {
@@ -79,6 +80,14 @@ export class ProfileController {
   async editData(@Body() body: EditDataDto, @Res() res: Response) {
     const { userId, newProfileData } = body;
     await this.profileService.editData(userId, newProfileData);
+    res.status(200).json({ okay: true });
+  }
+
+  @Post('makenewpost')
+  @UseGuards(UserIdGuard)
+  async makeNewPost(@Body() body: MakeNewPostDto, @Res() res: Response) {
+    const { userId, newPost } = body;
+    // await this.profileService.editData(userId, newProfileData);
     res.status(200).json({ okay: true });
   }
 }
