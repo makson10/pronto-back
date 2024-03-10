@@ -13,3 +13,8 @@ export interface NewProfileData {
   description: string;
   city: string;
 }
+
+export interface Post {
+  text: string;
+  picture: string | null;
+}

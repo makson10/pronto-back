@@ -1,7 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { prisma } from 'prisma/prisma';
 import { UserUtilsService } from 'src/user/userUtils.service';
-import { NewProfileData } from './interfaces/profile.interfaces';
+import { NewProfileData, Post } from './interfaces/profile.interfaces';
 
 @Injectable()
 export class ProfileService {
@@ -76,8 +76,14 @@ export class ProfileService {
     });
   }
 
-  public async calculateUserAge(dateOfBirth: string) {
+  private async calculateUserAge(dateOfBirth: string) {
     const timeDifference = Date.now() - +new Date(dateOfBirth);
     return Math.floor(timeDifference / 1000 / 60 / 60 / 24 / 365);
+  }
+
+  public async makeNewPost(userId: number, newPost: Post) {
+    return prisma.post.create({
+      data: { authorId: userId, text: newPost.text, picture: newPost.picture },
+    });
   }
 }

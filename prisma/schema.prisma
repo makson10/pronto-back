@@ -53,3 +53,12 @@ model VerificationRequest {
     userId      Int      @id @unique
     requestedAt DateTime @default(now())
 }
+
+model Post {
+    authorId  Int
+    createdAt DateTime @default(now())
+    text      String
+    picture   String?
+
+    @@id([authorId, createdAt])
+}

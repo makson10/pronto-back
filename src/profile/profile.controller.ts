@@ -87,7 +87,7 @@ export class ProfileController {
   @UseGuards(UserIdGuard)
   async makeNewPost(@Body() body: MakeNewPostDto, @Res() res: Response) {
     const { userId, newPost } = body;
-    // await this.profileService.editData(userId, newProfileData);
+    await this.profileService.makeNewPost(userId, newPost);
     res.status(200).json({ okay: true });
   }
 }
