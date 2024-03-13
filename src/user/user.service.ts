@@ -31,10 +31,10 @@ export class UserService {
     const sessionUserData = { id, firstName, email };
 
     try {
-      await prisma.user.create({
+      await prisma.users.create({
         data: {
           ...newUser,
-          Profile: {
+          Profiles: {
             create: {},
           },
         },

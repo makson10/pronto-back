@@ -13,7 +13,7 @@ export class SignUpEmailValidation implements CanActivate {
     const email = request.body.user.email;
     if (!email) throw new BadRequestException('Email is not provided');
 
-    const user = await prisma.user.findFirst({ where: { email } });
+    const user = await prisma.users.findFirst({ where: { email } });
     if (user)
       throw new BadRequestException('User with this email already exists');
 

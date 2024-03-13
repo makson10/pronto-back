@@ -8,24 +8,24 @@ export class ProfileService {
   constructor(private userUtilsService: UserUtilsService) {}
 
   public async getProfile(userId: number) {
-    return await prisma.profile.findUnique({
+    return await prisma.profiles.findUnique({
       where: { profileId: userId },
     });
   }
 
   public async updateProfile(userId: number, newProfileData: any) {
-    return await prisma.profile.update({
+    return await prisma.profiles.update({
       where: { profileId: userId },
       data: { ...newProfileData },
     });
   }
 
   public async addUserToVerificationRequestList(userId: number) {
-    return await prisma.verificationRequest.create({ data: { userId } });
+    return await prisma.verificationRequests.create({ data: { userId } });
   }
 
   public async resetVerificationData() {
-    return await prisma.profile.updateMany({
+    return await prisma.profiles.updateMany({
       data: { sentVerificationRequest: false },
     });
   }
@@ -47,21 +47,21 @@ export class ProfileService {
     const hashedNewPassword =
       await this.userUtilsService.hashingPassword(newPassword);
 
-    return await prisma.user.update({
+    return await prisma.users.update({
       where: { id: userId },
       data: { password: hashedNewPassword },
     });
   }
 
   public async changeUserIcon(userId: number, newIconUrl: string) {
-    return await prisma.profile.update({
+    return await prisma.profiles.update({
       where: { profileId: userId },
       data: { icon: newIconUrl },
     });
   }
 
   public async deleteIcon(userId: number) {
-    return prisma.profile.update({
+    return prisma.profiles.update({
       where: { profileId: userId },
       data: { icon: null },
     });
@@ -70,7 +70,7 @@ export class ProfileService {
   public async editData(userId: number, newProfileData: NewProfileData) {
     const age = await this.calculateUserAge(newProfileData.dateOfBirth);
 
-    return prisma.profile.update({
+    return prisma.profiles.update({
       where: { profileId: userId },
       data: { ...newProfileData, age },
     });
@@ -82,7 +82,7 @@ export class ProfileService {
   }
 
   public async makeNewPost(userId: number, newPost: Post) {
-    return prisma.post.create({
+    return prisma.posts.create({
       data: { authorId: userId, text: newPost.text, picture: newPost.picture },
     });
   }
