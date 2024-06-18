@@ -80,10 +80,4 @@ export class ProfileService {
     const timeDifference = Date.now() - +new Date(dateOfBirth);
     return Math.floor(timeDifference / 1000 / 60 / 60 / 24 / 365);
   }
-
-  public async makeNewPost(userId: number, newPost: Post) {
-    return prisma.posts.create({
-      data: { authorId: userId, text: newPost.text, picture: newPost.picture },
-    });
-  }
 }
