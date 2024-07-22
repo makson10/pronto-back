@@ -54,10 +54,11 @@ model VerificationRequests {
 
 model Posts {
     Users     Users?   @relation(fields: [authorId], references: [id])
+    postId    Int      @default(autoincrement())
     authorId  Int
     createdAt DateTime @default(now())
     text      String
     picture   String?
 
-    @@id([authorId, createdAt])
+    @@id([authorId, postId])
 }

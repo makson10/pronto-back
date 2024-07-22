@@ -29,4 +29,13 @@ export class PostsController {
     await this.postsService.addPost(newPost);
     res.status(200).json({ okay: true });
   }
+
+  @Post('/deletepost')
+  async deletePost(
+    @Body('postId', ParseIntPipe) postId: number,
+    @Res() res: Response,
+  ) {
+    await this.postsService.deletePost(postId);
+    res.status(200).json({ okay: true });
+  }
 }
