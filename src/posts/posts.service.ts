@@ -4,6 +4,12 @@ import { Post } from './interfaces/post.interfaces';
 
 @Injectable()
 export class PostsService {
+  public async getPost(postId: number) {
+    return await prisma.posts.findFirst({
+      where: { postId },
+    });
+  }
+
   public async getPosts(authorId: number) {
     return await prisma.posts.findMany({
       where: { authorId },

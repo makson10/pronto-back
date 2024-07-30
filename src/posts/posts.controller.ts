@@ -15,7 +15,16 @@ import { NewPostDto } from './dto/newPost.dto';
 export class PostsController {
   constructor(private postsService: PostsService) {}
 
-  @Get(':authorId')
+  @Get(':postId')
+  async getPost(
+    @Param('postId', ParseIntPipe) postId: number,
+    @Res() res: Response,
+  ) {
+    const post = await this.postsService.getPost(postId);
+    res.status(200).json(post);
+  }
+
+  @Get('/author/:authorId')
   async getPosts(
     @Param('authorId', ParseIntPipe) authorId: number,
     @Res() res: Response,
