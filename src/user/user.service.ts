@@ -35,7 +35,7 @@ export class UserService {
         data: {
           ...newUser,
           Profiles: {
-            create: {},
+            create: { presents: [] },
           },
         },
       });

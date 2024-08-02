@@ -42,6 +42,7 @@ model Profiles {
     isVerifed               Boolean   @default(false)
     sentVerificationRequest Boolean   @default(false)
     icon                    String?
+    presents                Json?
 
     @@unique([profileId, name])
 }
