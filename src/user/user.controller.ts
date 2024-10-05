@@ -95,4 +95,13 @@ export class UserController {
     const user = await this.userService.getUserData(userId);
     res.status(200).json(user);
   }
+
+  @Post('getusericonbyid')
+  async getUserIconById(
+    @Body('companionId', ParseIntPipe) companionId: number,
+    @Res() res: Response,
+  ) {
+    const iconUrl = await this.userService.getUserIconById(companionId);
+    res.status(200).json(iconUrl);
+  }
 }

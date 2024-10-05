@@ -63,3 +63,13 @@ model Posts {
 
     @@id([authorId, postId])
 }
+
+model Messages {
+    messageId  Int      @id @default(autoincrement())
+    senderId   Int
+    receiverId Int
+    text       String
+    image      String?
+    timestamp  DateTime @default(now())
+    wasReaded  Boolean  @default(false)
+}
