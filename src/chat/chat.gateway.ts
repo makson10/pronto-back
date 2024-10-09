@@ -6,7 +6,6 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
-
 import { Socket, Server } from 'socket.io';
 import { NewMessagePayload } from './interfaces/payload.interfaces';
 import { ChatService } from './chat.service';
@@ -37,14 +36,32 @@ export class ChatGateway
   }
 
   @SubscribeMessage('newMessage')
-  async handleMessage(client: Socket, data: NewMessagePayload) {
-    console.log('---------------------');
-    console.log('Message from ' + client.id + ' received');
-    console.log('Payload - ' + JSON.stringify(data));
+  async handleNewMessage(client: Socket, data: NewMessagePayload) {
+    console.log('------------');
+    console.log('New message from ' + client.id + ' received');
 
-    // await this.chatService.storeNewMessage(data);
-    const senders = [data.senderId, data.receiverId];
-    const messages = await this.chatService.getAllMessagesFromSenders(senders);
+    await this.chatService.storeNewMessage(data);
+    const messages = await this.chatService.getAllMessagesFromSenders(
+      data.senderId,
+      data.receiverId,
+    );
     this.io.emit('updateMessages', messages);
+  }
+
+  @SubscribeMessage('getMessages')
+  async handleGetMessages(
+    client: Socket,
+    data: { senderId: number; receiverId: number },
+  ) {
+    console.log('------------');
+    console.log(
+      'getMessages request was getting from ' + client.id + ' received',
+    );
+
+    const messages = await this.chatService.getAllMessagesFromSenders(
+      data.senderId,
+      data.receiverId,
+    );
+    client.emit('updateMessages', messages);
   }
 }

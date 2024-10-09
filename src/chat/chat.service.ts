@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { NewMessagePayload } from './interfaces/payload.interfaces';
-import { prisma } from 'prisma/prisma';
 import { Message } from './interfaces/message.interfaces';
+import { prisma } from 'prisma/prisma';
 
 @Injectable()
 export class ChatService {
@@ -11,38 +11,21 @@ export class ChatService {
     await prisma.messages.create({ data: payload });
   }
 
-  flatArray(array: Message[][]) {
-    if (!array.some((elem) => Array.isArray(elem))) return array;
-
-    const flattedArray = [];
-
-    array.map((elem) => {
-      console.log(elem);
-
-      if (Array.isArray(elem)) {
-        elem.map((el) => flattedArray.push(el));
-      }
-
-      flattedArray.push(elem);
-    });
-
-    return flattedArray;
-  }
-
   sortMessagesByTimestamp(messages: Message[]) {
-    return messages;
+    return messages.sort(
+      (a, b) => a.timestamp.getTime() - b.timestamp.getTime(),
+    );
   }
 
-  async getAllMessagesFromSenders(senders: number[]) {
-    const messagesPromises = senders.map(async (senderId) => {
-      return await prisma.messages.findMany({ where: { senderId } });
+  async getAllMessagesFromSenders(senderId: number, receiverId: number) {
+    const messages1 = await prisma.messages.findMany({
+      where: { senderId: senderId, receiverId: receiverId },
     });
 
-    const rawMessages: Message[][] = await Promise.all(messagesPromises);
-    const handledMessages = this.sortMessagesByTimestamp(
-      this.flatArray(rawMessages),
-    );
+    const messages2 = await prisma.messages.findMany({
+      where: { senderId: receiverId, receiverId: senderId },
+    });
 
-    return handledMessages;
+    return this.sortMessagesByTimestamp([...messages1, ...messages2]);
   }
 }
