@@ -54,6 +54,8 @@ export class UserController {
       result.sessionUserData.id,
     );
 
+    await this.userService.deleteExpiredSessions();
+
     res.cookie('sessionId', request.sessionID);
     res.status(200).json({ isAuthorized: result.isAuthorized });
   }

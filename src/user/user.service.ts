@@ -77,4 +77,8 @@ export class UserService {
     const companionProfile = await this.profileService.getProfile(companionId);
     return companionProfile.icon;
   }
+
+  public async deleteExpiredSessions() {
+    await this.userUtilsService.deleteExpiredSessions();
+  }
 }

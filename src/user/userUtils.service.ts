@@ -86,4 +86,10 @@ export class UserUtilsService {
       );
     }
   }
+
+  public async deleteExpiredSessions() {
+    await prisma.sessions.deleteMany({
+      where: { expiresAt: { lt: new Date() } },
+    });
+  }
 }

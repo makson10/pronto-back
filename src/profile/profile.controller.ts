@@ -81,4 +81,11 @@ export class ProfileController {
     await this.profileService.editData(userId, newProfileData);
     res.status(200).json({ okay: true });
   }
+
+  @Post('getuserchats')
+  @UseGuards(UserIdGuard)
+  async getUserChats(@Body('userId') userId: number, @Res() res: Response) {
+    const chats = await this.profileService.getUserChats(userId);
+    res.status(200).json(chats);
+  }
 }

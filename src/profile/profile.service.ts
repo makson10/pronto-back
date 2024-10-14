@@ -80,4 +80,11 @@ export class ProfileService {
     const timeDifference = Date.now() - +new Date(dateOfBirth);
     return Math.floor(timeDifference / 1000 / 60 / 60 / 24 / 365);
   }
+
+  public async getUserChats(userId: number) {
+    return await prisma.profiles.findUnique({
+      where: { profileId: userId },
+      select: { chats: true },
+    });
+  }
 }

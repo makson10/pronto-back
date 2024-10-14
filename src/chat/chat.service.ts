@@ -20,10 +20,14 @@ export class ChatService {
   async getAllMessagesFromSenders(senderId: number, receiverId: number) {
     const messages1 = await prisma.messages.findMany({
       where: { senderId: senderId, receiverId: receiverId },
+      orderBy: { timestamp: 'desc' },
+      take: 100,
     });
 
     const messages2 = await prisma.messages.findMany({
       where: { senderId: receiverId, receiverId: senderId },
+      orderBy: { timestamp: 'desc' },
+      take: 100,
     });
 
     return this.sortMessagesByTimestamp([...messages1, ...messages2]);
