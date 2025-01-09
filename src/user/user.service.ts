@@ -1,8 +1,8 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { LogInData, SignUpData } from './interfaces/user.interfaces';
 import { UserUtilsService } from './userUtils.service';
-import { prisma } from 'prisma/prisma';
 import { ProfileService } from 'src/profile/profile.service';
+import { prisma } from 'prisma/prisma';
 
 @Injectable()
 export class UserService {
@@ -35,7 +35,7 @@ export class UserService {
     const sessionUserData = { id, firstName, email };
 
     try {
-      await prisma.users.create({
+      const createdUser = await prisma.users.create({
         data: {
           ...newUser,
           Profiles: {
@@ -43,7 +43,7 @@ export class UserService {
           },
         },
       });
-      return { okay: true, sessionUserData };
+      return { okay: true, sessionUserData, createdUser };
     } catch (error) {
       console.log(error);
       throw new InternalServerErrorException('While sign up happened error');
@@ -62,6 +62,7 @@ export class UserService {
     return {
       isAuthorized: true,
       sessionUserData,
+      foundUser,
     };
   }
 

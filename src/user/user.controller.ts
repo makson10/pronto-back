@@ -38,7 +38,9 @@ export class UserController {
     );
 
     res.cookie('sessionId', request.sessionID);
-    res.status(201).json({ okay: result.okay });
+    res
+      .status(201)
+      .json({ okay: result.okay, createdUser: result.createdUser });
   }
 
   @Post('login')
@@ -57,7 +59,7 @@ export class UserController {
     await this.userService.deleteExpiredSessions();
 
     res.cookie('sessionId', request.sessionID);
-    res.status(200).json({ isAuthorized: result.isAuthorized });
+    res.status(200).json({ okay: result.isAuthorized, user: result.foundUser });
   }
 
   @Post('logout')
