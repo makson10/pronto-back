@@ -1,6 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { prisma } from 'prisma/prisma';
-import { UserUtilsService } from 'src/user/userUtils.service';
+import { UserUtilsService } from '../user/userUtils.service';
 import { NewProfileData, Post } from './interfaces/profile.interfaces';
 
 @Injectable()

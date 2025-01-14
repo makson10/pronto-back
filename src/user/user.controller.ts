@@ -13,10 +13,10 @@ import { SignUpDto } from './dto/signUp.dto';
 import { LogInDto } from './dto/logIn.dto';
 import { Request, Response } from 'express';
 import { User } from './decorator/user.decorator';
-import { CookieGuard } from '@/guard/cookie.guard';
-import { SessionGuard } from '@/guard/session.guard';
-import { UserIdGuard } from '@/guard/userId.guard';
-import { SignUpEmailValidation } from '@/guard/signUpEmailValidation.guard';
+import { CookieGuard } from '../guard/cookie.guard';
+import { SessionGuard } from '../guard/session.guard';
+import { UserIdGuard } from '../guard/userId.guard';
+import { SignUpEmailValidation } from '../guard/signUpEmailValidation.guard';
 import { UserSession } from './decorator/userSession.decorator';
 
 @Controller('user')

@@ -1,7 +1,7 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { LogInData, SignUpData } from './interfaces/user.interfaces';
 import { UserUtilsService } from './userUtils.service';
-import { ProfileService } from 'src/profile/profile.service';
+import { ProfileService } from '../profile/profile.service';
 import { prisma } from 'prisma/prisma';
 
 @Injectable()
