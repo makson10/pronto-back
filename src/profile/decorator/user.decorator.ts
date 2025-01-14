@@ -1,5 +1,5 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
-import { UserUtilsService } from 'src/user/userUtils.service';
+import { UserUtilsService } from '../../user/userUtils.service';
 
 export const User = createParamDecorator(
   async (data: string, ctx: ExecutionContext) => {

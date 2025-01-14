@@ -7,9 +7,9 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { Response } from 'express';
-import { UserIdGuard } from 'src/guard/userId.guard';
+import { UserIdGuard } from '../guard/userId.guard';
 import { ProfileService } from './profile.service';
-import { FullUser } from 'src/user/interfaces/user.interfaces';
+import { FullUser } from '../user/interfaces/user.interfaces';
 import { User } from './decorator/user.decorator';
 import { ChangeIconDto } from './dto/changeIcon.dto';
 import { ChangePasswordDto } from './dto/changePassword.dto';
