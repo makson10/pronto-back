@@ -15,7 +15,7 @@ export class UserIdGuard implements CanActivate {
     if (!userId) throw new BadRequestException('No user id provided');
 
     const parsedUserId = parseInt(userId);
-    const user = await prisma.user.findFirst({ where: { id: parsedUserId } });
+    const user = await prisma.users.findFirst({ where: { id: parsedUserId } });
     if (!user) throw new UnauthorizedException('No user with this user ID');
 
     return true;

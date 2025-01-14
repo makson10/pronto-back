@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
     provider = "prisma-client-js"
 }
@@ -10,36 +7,71 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
-model User {
-    id          Int          @unique
-    firstName   String
-    lastName    String
-    fullName    String
-    createdAt   DateTime     @default(now())
-    email       String
-    password    String
-    Session     Session?
-    UserProfile UserProfile?
+model Users {
+    id                   Int                   @unique
+    firstName            String
+    lastName             String
+    fullName             String
+    createdAt            DateTime              @default(now())
+    email                String                @unique
+    password             String
+    Sessions             Sessions?
+    Profiles             Profiles?
+    VerificationRequests VerificationRequests?
+    Posts                Posts[]
 
     @@id([id, fullName])
 }
 
-model Session {
-    user      User?    @relation(fields: [userId], references: [id])
+model Sessions {
+    users     Users?   @relation(fields: [userId], references: [id])
     sessionId String   @id @unique
     userId    Int      @unique @default(autoincrement())
     expiresAt DateTime
 }
 
-model UserProfile {
-    User        User     @relation(fields: [profileId, name], references: [id, fullName])
-    profileId   Int      @id
-    name        String
-    description String?
-    createdAt   DateTime @default(now())
-    city        String?
-    verifedUser Boolean  @default(false)
-    icon        String?
+model Profiles {
+    Users                   Users     @relation(fields: [profileId, name], references: [id, fullName])
+    profileId               Int       @id
+    name                    String
+    age                     Int?
+    dateOfBirth             DateTime?
+    description             String?
+    createdAt               DateTime  @default(now())
+    city                    String?
+    isVerifed               Boolean   @default(false)
+    sentVerificationRequest Boolean   @default(false)
+    icon                    String?
+    presents                Json?
+    friends                 Int[]
+    chats                   Json[]
 
     @@unique([profileId, name])
+}
+
+model VerificationRequests {
+    Users       Users    @relation(fields: [userId], references: [id])
+    userId      Int      @id @unique
+    requestedAt DateTime @default(now())
+}
+
+model Posts {
+    Users     Users?   @relation(fields: [authorId], references: [id])
+    postId    Int      @default(autoincrement())
+    authorId  Int
+    createdAt DateTime @default(now())
+    text      String
+    picture   String?
+
+    @@id([authorId, postId])
+}
+
+model Messages {
+    messageId  Int      @id @default(autoincrement())
+    senderId   Int
+    receiverId Int
+    text       String
+    image      String?
+    timestamp  DateTime @default(now())
+    wasReaded  Boolean  @default(false)
 }

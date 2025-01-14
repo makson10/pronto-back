@@ -12,7 +12,7 @@ export class SessionGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const sessionId = request.cookies.sessionId;
 
-    const session = await prisma.session.findFirst({ where: { sessionId } });
+    const session = await prisma.sessions.findFirst({ where: { sessionId } });
     if (!session) {
       throw new BadRequestException('No session with this session ID');
     }

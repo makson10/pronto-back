@@ -28,19 +28,21 @@ export class UserUtilsService {
   }
 
   public combineName(firstName: string, lastName: string) {
+    firstName = firstName[0].toUpperCase() + firstName.slice(1);
+    lastName = firstName[0].toUpperCase() + firstName.slice(1);
     return firstName + ' ' + lastName;
   }
 
   public async findUserByEmail(email: string) {
-    return await prisma.user.findFirst({ where: { email } });
+    return await prisma.users.findFirst({ where: { email } });
   }
 
   public async findUserByUserId(id: number) {
-    return await prisma.user.findFirst({ where: { id } });
+    return await prisma.users.findFirst({ where: { id } });
   }
 
   public async findSessionBySessionId(sessionId: string) {
-    return await prisma.session.findFirst({ where: { sessionId } });
+    return await prisma.sessions.findFirst({ where: { sessionId } });
   }
 
   public async verifyUser(user: LogInData) {
@@ -66,7 +68,7 @@ export class UserUtilsService {
   }
 
   public async storeNewSessionInDB(session: Session) {
-    await prisma.session.create({
+    await prisma.sessions.create({
       data: {
         sessionId: session.sessionId,
         userId: session.userId,
@@ -77,11 +79,17 @@ export class UserUtilsService {
 
   public async deleteAllUserSession(userId: number) {
     try {
-      await prisma.session.deleteMany({ where: { userId } });
+      await prisma.sessions.deleteMany({ where: { userId } });
     } catch (error) {
       throw new UnauthorizedException(
         'Session with this sessionId didn\t find',
       );
     }
+  }
+
+  public async deleteExpiredSessions() {
+    await prisma.sessions.deleteMany({
+      where: { expiresAt: { lt: new Date() } },
+    });
   }
 }

@@ -1,12 +1,5 @@
 import { UserService } from './user.service';
-import {
-  SignUpResponse,
-  LogInResponse,
-  LogOutResponse,
-  FullUser,
-  Session,
-  GetUserIdBySessionResponse,
-} from './interfaces/user.interfaces';
+import { Session } from './interfaces/user.interfaces';
 import {
   Body,
   Controller,
@@ -24,17 +17,19 @@ import { CookieGuard } from 'src/guard/cookie.guard';
 import { SessionGuard } from 'src/guard/session.guard';
 import { UserSession } from './decorator/userSession.decorator';
 import { UserIdGuard } from 'src/guard/userId.guard';
+import { SignUpEmailValidation } from 'src/guard/signUpEmailValidation.guard';
 
 @Controller('user')
 export class UserController {
   constructor(private userService: UserService) {}
 
   @Post('signup')
+  @UseGuards(SignUpEmailValidation)
   async signUp(
     @Req() request: Request,
     @User() user: SignUpDto,
-    @Res({ passthrough: true }) res: Response,
-  ): Promise<Response<SignUpResponse>> {
+    @Res() res: Response,
+  ) {
     const result = await this.userService.signUp(user);
 
     await this.userService.createNewUserSession(
@@ -43,15 +38,17 @@ export class UserController {
     );
 
     res.cookie('sessionId', request.sessionID);
-    return res.status(201).json({ okay: result.okay });
+    res
+      .status(201)
+      .json({ okay: result.okay, createdUser: result.createdUser });
   }
 
   @Post('login')
   async logIn(
     @Req() request: Request,
     @User() user: LogInDto,
-    @Res({ passthrough: true }) res: Response,
-  ): Promise<Response<LogInResponse>> {
+    @Res() res: Response,
+  ) {
     const result = await this.userService.logIn(user);
 
     await this.userService.createNewUserSession(
@@ -59,18 +56,17 @@ export class UserController {
       result.sessionUserData.id,
     );
 
+    await this.userService.deleteExpiredSessions();
+
     res.cookie('sessionId', request.sessionID);
-    return res.status(200).json({ isAuthorized: result.isAuthorized });
+    res.status(200).json({ okay: result.isAuthorized, user: result.foundUser });
   }
 
   @Post('logout')
   @UseGuards(CookieGuard)
-  async logOut(
-    @UserSession() session: Session,
-    @Res({ passthrough: true }) res: Response,
-  ): Promise<Response<LogOutResponse>> {
+  async logOut(@UserSession() session: Session, @Res() res: Response) {
     await this.userService.logOut(session.userId);
-    return res.status(200).json({ okay: true });
+    res.status(200).json({ okay: true });
   }
 
   @Post('getuseridbysession')
@@ -78,9 +74,9 @@ export class UserController {
   @UseGuards(SessionGuard)
   async getUserIdFromSession(
     @UserSession() session: Session,
-    @Res({ passthrough: true }) res: Response,
-  ): Promise<Response<GetUserIdBySessionResponse>> {
-    return res.status(200).json({ userId: session.userId });
+    @Res() res: Response,
+  ) {
+    res.status(200).json({ userId: session.userId });
   }
 
   @Post('getuserdatabysession')
@@ -88,19 +84,28 @@ export class UserController {
   @UseGuards(SessionGuard)
   async getUserDataBySession(
     @UserSession() session: Session,
-    @Res({ passthrough: true }) res: Response,
-  ): Promise<Response<FullUser>> {
+    @Res() res: Response,
+  ) {
     const user = await this.userService.getUserData(session.userId);
-    return res.status(200).json(user);
+    res.status(200).json(user);
   }
 
   @Post('getuserdatabyuserid')
   @UseGuards(UserIdGuard)
   async getUserDataByUserId(
     @Body('userId', ParseIntPipe) userId: number,
-    @Res({ passthrough: true }) res: Response,
-  ): Promise<Response<FullUser>> {
+    @Res() res: Response,
+  ) {
     const user = await this.userService.getUserData(userId);
-    return res.status(200).json(user);
+    res.status(200).json(user);
+  }
+
+  @Post('getusericonbyid')
+  async getUserIconById(
+    @Body('companionId', ParseIntPipe) companionId: number,
+    @Res() res: Response,
+  ) {
+    const iconUrl = await this.userService.getUserIconById(companionId);
+    res.status(200).json(iconUrl);
   }
 }

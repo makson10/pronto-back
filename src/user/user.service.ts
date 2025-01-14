@@ -1,11 +1,15 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { LogInData, SignUpData } from './interfaces/user.interfaces';
 import { UserUtilsService } from './userUtils.service';
+import { ProfileService } from 'src/profile/profile.service';
 import { prisma } from 'prisma/prisma';
 
 @Injectable()
 export class UserService {
-  constructor(private userUtilsService: UserUtilsService) {}
+  constructor(
+    private userUtilsService: UserUtilsService,
+    private profileService: ProfileService,
+  ) {}
 
   public async createNewUserSession(sessionId: string, userId: number) {
     const sessionExpireDate = new Date(+new Date() + 28 * 24 * 60 * 60 * 1000);
@@ -31,19 +35,18 @@ export class UserService {
     const sessionUserData = { id, firstName, email };
 
     try {
-      await prisma.user.create({
+      const createdUser = await prisma.users.create({
         data: {
           ...newUser,
-          UserProfile: {
-            create: {},
+          Profiles: {
+            create: { presents: [] },
           },
         },
       });
-      return { okay: true, sessionUserData };
+      return { okay: true, sessionUserData, createdUser };
     } catch (error) {
-      throw new InternalServerErrorException(
-        'While creating user happened error',
-      );
+      console.log(error);
+      throw new InternalServerErrorException('While sign up happened error');
     }
   }
 
@@ -59,6 +62,7 @@ export class UserService {
     return {
       isAuthorized: true,
       sessionUserData,
+      foundUser,
     };
   }
 
@@ -68,5 +72,14 @@ export class UserService {
 
   public async getUserData(userId: number) {
     return await this.userUtilsService.findUserByUserId(userId);
+  }
+
+  public async getUserIconById(companionId: number) {
+    const companionProfile = await this.profileService.getProfile(companionId);
+    return companionProfile.icon;
+  }
+
+  public async deleteExpiredSessions() {
+    await this.userUtilsService.deleteExpiredSessions();
   }
 }
