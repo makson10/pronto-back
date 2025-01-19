@@ -1,4 +1,10 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { LogInData, SignUpData } from './interfaces/user.interfaces';
 import { UserUtilsService } from './userUtils.service';
 import { ProfileService } from '../profile/profile.service';
@@ -43,7 +49,8 @@ export class UserService {
           },
         },
       });
-      return { okay: true, sessionUserData, createdUser };
+      const newProfile = await this.profileService.getProfile(createdUser.id);
+      return { okay: true, sessionUserData, createdUser, newProfile };
     } catch (error) {
       console.log(error);
       throw new InternalServerErrorException('While sign up happened error');
@@ -52,6 +59,11 @@ export class UserService {
 
   public async logIn(user: LogInData) {
     const foundUser = await this.userUtilsService.verifyUser(user);
+    if (!foundUser) {
+      throw new BadRequestException();
+    }
+
+    const profile = await this.profileService.getProfile(foundUser.id);
 
     const sessionUserData = {
       id: foundUser.id,
@@ -62,7 +74,8 @@ export class UserService {
     return {
       isAuthorized: true,
       sessionUserData,
-      foundUser,
+      user: foundUser,
+      profile,
     };
   }
 
