@@ -18,11 +18,25 @@ import { SessionGuard } from '../guard/session.guard';
 import { UserIdGuard } from '../guard/userId.guard';
 import { SignUpEmailValidation } from '../guard/signUpEmailValidation.guard';
 import { UserSession } from './decorator/userSession.decorator';
+import {
+  ApiBadRequestResponse,
+  ApiBody,
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
 @Controller('user')
+@ApiTags('user')
 export class UserController {
   constructor(private userService: UserService) {}
 
+  @ApiOperation({ summary: 'Sign up a new user' })
+  @ApiCreatedResponse({ description: 'User created successfully.' })
+  @ApiBadRequestResponse({ description: 'Invalid input' })
+  @ApiBody({ type: SignUpDto })
   @Post('signup')
   @UseGuards(SignUpEmailValidation)
   async signUp(
@@ -45,6 +59,10 @@ export class UserController {
     });
   }
 
+  @ApiOperation({ summary: 'Log a user in' })
+  @ApiOkResponse({ description: 'User has loggined successfully' })
+  @ApiBadRequestResponse({ description: 'Error occured durind logging in' })
+  @ApiBody({ type: LogInDto })
   @Post('login')
   async logIn(
     @Req() request: Request,
@@ -68,6 +86,9 @@ export class UserController {
     });
   }
 
+  @ApiOperation({ summary: 'Log a user out' })
+  @ApiOkResponse({ description: 'User has logged out' })
+  @ApiBadRequestResponse({ description: 'Error occured durind logging out' })
   @Post('logout')
   @UseGuards(CookieGuard)
   async logOut(@UserSession() session: Session, @Res() res: Response) {
@@ -75,6 +96,9 @@ export class UserController {
     res.status(200).json({ okay: true });
   }
 
+  @ApiOperation({ summary: 'Get user ID from session' })
+  @ApiOkResponse({ description: 'User ID retrieved successfully' })
+  @ApiBadRequestResponse({ description: 'Error retrieving user ID' })
   @Post('getuseridbysession')
   @UseGuards(CookieGuard)
   @UseGuards(SessionGuard)
@@ -85,6 +109,9 @@ export class UserController {
     res.status(200).json({ userId: session.userId });
   }
 
+  @ApiOperation({ summary: 'Get user data by session' })
+  @ApiOkResponse({ description: 'User data retrieved successfully' })
+  @ApiBadRequestResponse({ description: 'Error retrieving user data' })
   @Post('getuserdatabysession')
   @UseGuards(CookieGuard)
   @UseGuards(SessionGuard)
@@ -96,6 +123,10 @@ export class UserController {
     res.status(200).json(user);
   }
 
+  @ApiOperation({ summary: 'Get user data by user ID' })
+  @ApiOkResponse({ description: 'User data retrieved successfully' })
+  @ApiBadRequestResponse({ description: 'Error retrieving user data' })
+  @ApiBody({ type: Number })
   @Post('getuserdatabyuserid')
   @UseGuards(UserIdGuard)
   async getUserDataByUserId(
@@ -106,6 +137,10 @@ export class UserController {
     res.status(200).json(user);
   }
 
+  @ApiOperation({ summary: 'Get user icon by user ID' })
+  @ApiOkResponse({ description: 'User icon retrieved successfully' })
+  @ApiBadRequestResponse({ description: 'Error retrieving user icon' })
+  @ApiBody({ type: Number })
   @Post('getusericonbyid')
   async getUserIconById(
     @Body('companionId', ParseIntPipe) companionId: number,

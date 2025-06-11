@@ -14,11 +14,18 @@ import { User } from './decorator/user.decorator';
 import { ChangeIconDto } from './dto/changeIcon.dto';
 import { ChangePasswordDto } from './dto/changePassword.dto';
 import { EditDataDto } from './dto/editDataDto.dto';
+import { ApiBadRequestResponse, ApiBody, ApiOkResponse, ApiOperation } from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('profile')
+@ApiTags('profile')
 export class ProfileController {
   constructor(private profileService: ProfileService) {}
 
+  @ApiOperation({ summary: 'Get profile by user ID' })
+  @ApiOkResponse({ description: 'Profile retrieved successfully' })
+  @ApiBadRequestResponse({ description: 'Error retrieving profile' })
+  @ApiBody({ type: Number })
   @Post('getprofile')
   @UseGuards(UserIdGuard)
   async getProfile(
@@ -29,6 +36,10 @@ export class ProfileController {
     res.status(200).json(profile);
   }
 
+  @ApiOperation({ summary: 'Add user to verification request list' })
+  @ApiOkResponse({ description: 'User added to verification request list successfully' })
+  @ApiBadRequestResponse({ description: 'Error adding user to verification request list' })
+  @ApiBody({ type: Number })
   @Post('addusertoverificationrequestlist')
   @UseGuards(UserIdGuard)
   async getUserVerificationRequest(
@@ -42,6 +53,10 @@ export class ProfileController {
     res.status(200).json({ okay: true });
   }
 
+  @ApiOperation({ summary: 'Change user password' })
+  @ApiOkResponse({ description: 'User password changed successfully' })
+  @ApiBadRequestResponse({ description: 'Error changing user password' })
+  @ApiBody({ type: ChangePasswordDto })
   @Post('changepassword')
   @UseGuards(UserIdGuard)
   async changePassword(
@@ -59,6 +74,10 @@ export class ProfileController {
     res.status(200).json({ okay: true });
   }
 
+  @ApiOperation({ summary: 'Change user icon' })
+  @ApiOkResponse({ description: 'User icon changed successfully' })
+  @ApiBadRequestResponse({ description: 'Error changing user icon' })
+  @ApiBody({ type: ChangeIconDto })
   @Post('changeicon')
   @UseGuards(UserIdGuard)
   async changeIcon(@Body() body: ChangeIconDto, @Res() res: Response) {
@@ -67,6 +86,10 @@ export class ProfileController {
     res.status(200).json({ okay: true });
   }
 
+  @ApiOperation({ summary: 'Delete user icon' })
+  @ApiOkResponse({ description: 'User icon deleted successfully' })
+  @ApiBadRequestResponse({ description: 'Error deleting user icon' })
+  @ApiBody({ type: Number })
   @Post('deleteicon')
   @UseGuards(UserIdGuard)
   async deleteIcon(@Body('userId') userId: number, @Res() res: Response) {
@@ -74,6 +97,10 @@ export class ProfileController {
     res.status(200).json({ okay: true });
   }
 
+  @ApiOperation({ summary: 'Edit user data' })
+  @ApiOkResponse({ description: 'User data edited successfully' })
+  @ApiBadRequestResponse({ description: 'Error editing user data' })
+  @ApiBody({ type: EditDataDto })
   @Post('editdata')
   @UseGuards(UserIdGuard)
   async editData(@Body() body: EditDataDto, @Res() res: Response) {
@@ -82,6 +109,10 @@ export class ProfileController {
     res.status(200).json({ okay: true });
   }
 
+  @ApiOperation({ summary: 'Get user chats' })
+  @ApiOkResponse({ description: 'User chats retrieved successfully' })
+  @ApiBadRequestResponse({ description: 'Error retrieving user chats' })
+  @ApiBody({ type: Number })
   @Post('getuserchats')
   @UseGuards(UserIdGuard)
   async getUserChats(@Body('userId') userId: number, @Res() res: Response) {

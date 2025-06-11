@@ -1,7 +1,5 @@
 import {
   BadRequestException,
-  HttpException,
-  HttpStatus,
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
@@ -42,12 +40,7 @@ export class UserService {
 
     try {
       const createdUser = await prisma.users.create({
-        data: {
-          ...newUser,
-          Profiles: {
-            create: { presents: [] },
-          },
-        },
+        data: { ...newUser, Profiles: { create: { presents: [] } } },
       });
       const newProfile = await this.profileService.getProfile(createdUser.id);
       return { okay: true, sessionUserData, createdUser, newProfile };
@@ -71,12 +64,7 @@ export class UserService {
       firstName: foundUser.firstName,
     };
 
-    return {
-      isAuthorized: true,
-      sessionUserData,
-      user: foundUser,
-      profile,
-    };
+    return { isAuthorized: true, sessionUserData, user: foundUser, profile };
   }
 
   public async logOut(userId: number) {
